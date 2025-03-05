@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Contact;
 use App\Http\Requests\ContactRequest;
 use Illuminate\Http\JsonResponse;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 class ContactController extends Controller
 {
@@ -16,20 +18,34 @@ class ContactController extends Controller
      */
     public function store(ContactRequest $request): JsonResponse
     {
-        // 创建联系记录
-        $contact = Contact::create([
-            'phone' => $request->input('phone'),
-            'email' => $request->input('email'),
-            'address' => $request->input('address'),
-            'house_status' => $request->input('house_status'),
-            'message' => $request->input('message'),
-            'ip_address' => $request->ip(),
-        ]);
+        try {
+            // 创建联系记录
+            $contact = Contact::create([
+                'phone' => $request->input('phone'),
+                'email' => $request->input('email'),
+                'address' => $request->input('address'),
+                'house_status' => $request->input('house_status'),
+                'message' => $request->input('message'),
+                'ip_address' => $request->ip(),
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => '联系表单已成功提交',
-            'data' => $contact
-        ], 201);
+            return response()->json([
+                'message' => 'Contact form submitted successfully.',
+                'data' => $contact
+            ], 201);
+            throw new Exception('测试错误');
+        } catch (Exception $e) {
+            // 记录错误日志
+            Log::error('联系表单提交失败: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'message' => 'Submission failed, please try again later.',
+                'error' => config('app.debug') ? $e->getMessage() : null
+            ], 500);
+        }
     }
 } 
