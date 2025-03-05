@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('phone')->nullable()->comment('电话');
             $table->string('email')->nullable()->comment('邮箱');
-            $table->text('address')->nullable()->comment('地址');
+            $table->string('address')->nullable()->comment('地址');
             $table->string('house_status')->nullable()->comment('房屋状态');
             $table->string('ip_address')->nullable()->comment('访问者IP');
-            $table->text('message')->nullable()->comment('留言内容');
+            $table->string('message')->nullable()->comment('留言内容');
             $table->timestamps();
         });
     }
