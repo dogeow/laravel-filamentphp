@@ -7,6 +7,8 @@ use App\Http\Requests\ContactRequest;
 use Illuminate\Http\JsonResponse;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
+use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 
 class ContactController extends Controller
 {
@@ -18,6 +20,14 @@ class ContactController extends Controller
      */
     public function store(ContactRequest $request): JsonResponse
     {
+        $key = $request->ip();
+
+        if (RateLimiter::tooManyAttempts($key, 1)) {
+            throw new TooManyRequestsHttpException(null, 'You have already submitted a form.');
+        }
+
+        RateLimiter::hit($key, 86400);
+
         try {
             // 创建联系记录
             $contact = Contact::create([
